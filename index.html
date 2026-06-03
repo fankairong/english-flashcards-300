@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#7c3aed">
+<link rel="manifest" href="./manifest.json">
+<link rel="icon" href="./icon-192.png" type="image/png">
+<meta name="theme-color" content="#7c3aed">
+<link rel="manifest" href="./manifest.json">
+<link rel="icon" href="./icon-192.png" type="image/png">
+<title>日常英语300句 抽认卡</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    color: #fff;
+  }
+  h1 {
+    font-size: 1.4rem; font-weight: 700; letter-spacing: 2px;
+    margin-bottom: 8px; color: #e0c9f5;
+    text-shadow: 0 2px 8px rgba(160,100,255,0.4);
+  }
+  .subtitle { font-size: 0.85rem; color: #9bb3d4; margin-bottom: 20px; }
+  .controls { display:flex; gap:10px; margin-bottom:22px; flex-wrap:wrap; justify-content:center; }
+  .btn {
+    padding: 8px 18px; border: none; border-radius: 24px; cursor: pointer;
+    font-size: 0.85rem; font-weight: 600; transition: all .2s; letter-spacing: .5px;
+  }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,.4); }
+  .btn:active { transform: translateY(0); }
+  .btn-primary   { background: linear-gradient(135deg,#a855f7,#7c3aed); color:#fff; }
+  .btn-secondary { background: rgba(255,255,255,.12); color:#e2e8f0; border:1px solid rgba(255,255,255,.2); }
+  .btn-success   { background: linear-gradient(135deg,#10b981,#059669); color:#fff; }
+  .btn-danger    { background: linear-gradient(135deg,#ef4444,#dc2626); color:#fff; }
+  .btn-warning   { background: linear-gradient(135deg,#f59e0b,#d97706); color:#fff; }
+  .btn.active    { box-shadow: 0 0 0 3px rgba(168,85,247,.5); }
+  .mode-bar {
+    display:flex; background:rgba(255,255,255,.08); border-radius:12px;
+    padding:4px; gap:4px; margin-bottom:18px;
+  }
+  .mode-tab {
+    padding:6px 16px; border-radius:8px; font-size:.8rem; font-weight:600;
+    cursor:pointer; transition:all .2s; color:#9bb3d4;
+  }
+  .mode-tab.active {
+    background: linear-gradient(135deg,#a855f7,#7c3aed);
+    color:#fff; box-shadow:0 4px 12px rgba(168,85,247,.4);
+  }
+  .progress-wrap { width:100%; max-width:560px; margin-bottom:14px; }
+  .progress-info { display:flex; justify-content:space-between; font-size:.78rem; color:#9bb3d4; margin-bottom:6px; }
+  .progress-bar { height:6px; background:rgba(255,255,255,.1); border-radius:3px; overflow:hidden; }
+  .progress-fill {
+    height:100%; background:linear-gradient(90deg,#a855f7,#7c3aed);
+    border-radius:3px; transition:width .4s ease;
+  }
+  .scene {
+    width:100%; max-width:560px; height:280px;
+    perspective:1000px; cursor:pointer; margin-bottom:20px;
+  }
+  .card-inner {
+    position:relative; width:100%; height:100%;
+    transition:transform .6s cubic-bezier(.4,0,.2,1);
+    transform-style:preserve-3d;
+  }
+  .scene.flipped .card-inner { transform: rotateY(180deg); }
+  .card-face {
+    position:absolute; width:100%; height:100%; border-radius:20px;
+    backface-visibility:hidden; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; padding:32px; text-align:center;
+  }
+  .card-front {
+    background: linear-gradient(135deg,rgba(168,85,247,.25),rgba(124,58,237,.15));
+    border:1px solid rgba(168,85,247,.4);
+    box-shadow:0 20px 60px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.1);
+  }
+  .card-back {
+    background: linear-gradient(135deg,rgba(16,185,129,.2),rgba(5,150,105,.12));
+    border:1px solid rgba(16,185,129,.4);
+    box-shadow:0 20px 60px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.1);
+    transform:rotateY(180deg);
+  }
+  .card-label { font-size:.7rem; font-weight:700; letter-spacing:2px; text-transform:uppercase; opacity:.5; margin-bottom:12px; }
+  .card-main { font-size:1.7rem; font-weight:700; line-height:1.4; color:#fff; }
+  .card-back .card-main { color:#6ee7b7; }
+  .card-num {
+    position:absolute; top:16px; right:20px; font-size:.75rem;
+    font-weight:700; opacity:.4; background:rgba(255,255,255,.08);
+    padding:3px 8px; border-radius:10px;
+  }
+  .card-hint { margin-top:14px; font-size:.78rem; color:rgba(255,255,255,.35); }
+  .part-badge {
+    position:absolute; top:16px; left:20px; font-size:.68rem;
+    font-weight:700; letter-spacing:1px; padding:3px 8px; border-radius:10px;
+  }
+  .part-1 { background:rgba(59,130,246,.3); color:#93c5fd; border:1px solid rgba(59,130,246,.4); }
+  .part-2 { background:rgba(245,158,11,.3); color:#fcd34d; border:1px solid rgba(245,158,11,.4); }
+  .part-3 { background:rgba(239,68,68,.3); color:#fca5a5; border:1px solid rgba(239,68,68,.4); }
+  .nav-row { display:flex; align-items:center; gap:16px; margin-bottom:20px; }
+  .nav-btn {
+    width:52px; height:52px; border-radius:50%; border:none; cursor:pointer;
+    font-size:1.3rem; display:flex; align-items:center; justify-content:center;
+    transition:all .2s; background:rgba(255,255,255,.1); color:#fff;
+  }
+  .nav-btn:hover { background:rgba(168,85,247,.5); transform:scale(1.1); }
+  .nav-btn:disabled { opacity:.3; cursor:default; transform:none; }
+  .judge-row { display:flex; gap:16px; }
+  .status-stats { display:flex; gap:20px; font-size:.82rem; color:#9bb3d4; }
+  .stat-item span { font-weight:700; }
+  .s-know { color:#34d399; }
+  .s-unknow { color:#f87171; }
+  .filter-bar { display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap; justify-content:center; }
+  .filter-btn {
+    padding:5px 14px; border-radius:16px; border:1px solid rgba(255,255,255,.2);
+    background:rgba(255,255,255,.06); color:#9bb3d4; font-size:.78rem;
+    cursor:pointer; transition:all .2s;
+  }
+  .filter-btn:hover, .filter-btn.active {
+    background:rgba(168,85,247,.3); border-color:rgba(168,85,247,.5); color:#e9d5ff;
+  }
+  .keyboard-hint { font-size:.72rem; color:rgba(255,255,255,.25); text-align:center; margin-top:12px; }
+  kbd {
+    background:rgba(255,255,255,.1); border-radius:4px;
+    padding:1px 5px; font-size:.7rem; border:1px solid rgba(255,255,255,.2);
+  }
+
+  /* ── Quiz Mode ── */
+  #quizPanel {
+    display:none; width:100%; max-width:560px;
+    margin-bottom:20px; flex-direction:column; align-items:center; gap:14px;
+  }
+  #quizPanel.show { display:flex; }
+
+  .quiz-card {
+    width:100%; border-radius:20px; padding:36px 32px;
+    background: linear-gradient(135deg,rgba(245,158,11,.18),rgba(217,119,6,.1));
+    border:1px solid rgba(245,158,11,.4);
+    box-shadow:0 20px 60px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.1);
+    text-align:center; position:relative;
+  }
+  .quiz-card .card-num {
+    position:absolute; top:16px; right:20px; font-size:.75rem;
+    font-weight:700; opacity:.4; background:rgba(255,255,255,.08);
+    padding:3px 8px; border-radius:10px;
+  }
+  .quiz-card .part-badge {
+    position:absolute; top:16px; left:20px; font-size:.68rem;
+    font-weight:700; letter-spacing:1px; padding:3px 8px; border-radius:10px;
+  }
+  .quiz-zh {
+    font-size:1.9rem; font-weight:700; color:#fcd34d;
+    line-height:1.4; margin-bottom:4px;
+  }
+  .quiz-prompt { font-size:.78rem; color:rgba(255,255,255,.4); margin-bottom:20px; }
+
+  .quiz-input-wrap { position:relative; width:100%; }
+  .quiz-input {
+    width:100%; padding:14px 50px 14px 18px;
+    background:rgba(255,255,255,.08);
+    border:2px solid rgba(255,255,255,.2);
+    border-radius:14px; color:#fff; font-size:1rem;
+    outline:none; transition:border-color .2s;
+    font-family: inherit;
+  }
+  .quiz-input::placeholder { color:rgba(255,255,255,.3); }
+  .quiz-input:focus { border-color:rgba(245,158,11,.6); }
+  .quiz-input.correct { border-color:#34d399; background:rgba(16,185,129,.12); }
+  .quiz-input.wrong   { border-color:#f87171; background:rgba(239,68,68,.12); }
+  .quiz-submit {
+    position:absolute; right:10px; top:50%; transform:translateY(-50%);
+    background:rgba(245,158,11,.7); border:none; border-radius:8px;
+    padding:6px 12px; color:#fff; font-size:.8rem; font-weight:700;
+    cursor:pointer; transition:background .2s;
+  }
+  .quiz-submit:hover { background:rgba(245,158,11,1); }
+
+  .quiz-feedback {
+    font-size:.9rem; font-weight:600; min-height:22px;
+    transition:all .3s;
+  }
+  .quiz-feedback.ok  { color:#34d399; }
+  .quiz-feedback.err { color:#f87171; }
+
+  .quiz-answer-reveal {
+    font-size:.9rem; color:#9bb3d4; display:none;
+    background:rgba(255,255,255,.06); border-radius:10px;
+    padding:8px 16px; margin-top:2px;
+  }
+  .quiz-answer-reveal.show { display:block; }
+  .quiz-answer-reveal strong { color:#fcd34d; }
+
+  .quiz-nav-row {
+    display:flex; gap:12px; align-items:center; flex-wrap:wrap; justify-content:center;
+  }
+  .quiz-stats {
+    display:flex; gap:20px; font-size:.82rem; color:#9bb3d4;
+  }
+  .completion {
+    display:none; position:fixed; inset:0;
+    background:rgba(0,0,0,.8); align-items:center;
+    justify-content:center; z-index:100;
+  }
+  .completion.show { display:flex; }
+  .completion-box {
+    background:linear-gradient(135deg,#1e1b4b,#312e81);
+    border:1px solid rgba(168,85,247,.4); border-radius:24px;
+    padding:40px; text-align:center; max-width:400px;
+    width:90%; box-shadow:0 40px 80px rgba(0,0,0,.6);
+  }
+  .completion-box h2 { font-size:2rem; margin-bottom:12px; }
+  .completion-box p { color:#9bb3d4; margin-bottom:20px; font-size:.9rem; line-height:1.6; }
+  .completion-stats { display:flex; gap:20px; justify-content:center; margin-bottom:24px; }
+  .c-stat { text-align:center; }
+  .c-stat .num { font-size:1.8rem; font-weight:800; }
+  .c-stat .label { font-size:.75rem; color:#9bb3d4; }
+
+  /* ── Speaker Button ── */
+  .speak-btn {
+    position:absolute; bottom:16px; left:20px;
+    width:40px; height:40px; border-radius:50%;
+    border:1px solid rgba(255,255,255,.25);
+    background:rgba(255,255,255,.08);
+    cursor:pointer; font-size:1.1rem;
+    display:flex; align-items:center; justify-content:center;
+    transition:all .2s; color:#fff;
+  }
+  .speak-btn:hover { background:rgba(168,85,247,.5); border-color:rgba(168,85,247,.7); transform:scale(1.1); }
+  .speak-btn.speaking { background:rgba(168,85,247,.6); box-shadow:0 0 12px rgba(168,85,247,.6); }
+</style>
+</head>
+<body>
+
+<h1>&#x1F3B4; 日常英语 300 句</h1>
+<p class="subtitle">点击卡片翻转 &middot; 左右切换 &middot; 记录掌握情况</p>
+
+<div class="mode-bar">
+  <div class="mode-tab active" onclick="setMode('all')" id="tab-all">全部 300</div>
+  <div class="mode-tab" onclick="setMode('unknow')" id="tab-unknow">待学习</div>
+  <div class="mode-tab" onclick="setMode('know')" id="tab-know">已掌握</div>
+  <div class="mode-tab" onclick="setMode('part')" id="tab-part">按难度</div>
+  <div class="mode-tab" onclick="setMode('quiz')" id="tab-quiz">&#x270F; 听写测试</div>
+</div>
+
+<div class="filter-bar" id="partFilter" style="display:none">
+  <div class="filter-btn active" onclick="setPart(0)" id="pf-0">全部</div>
+  <div class="filter-btn" onclick="setPart(1)" id="pf-1">&#x1F535; Part 1 简单</div>
+  <div class="filter-btn" onclick="setPart(2)" id="pf-2">&#x1F7E1; Part 2 中等</div>
+  <div class="filter-btn" onclick="setPart(3)" id="pf-3">&#x1F534; Part 3 困难</div>
+</div>
+
+<div class="controls">
+  <button class="btn btn-secondary active" onclick="toggleShuffle()" id="shuffleBtn">&#x1F500; 随机 ON</button>
+  <button class="btn btn-secondary" onclick="toggleAutoFlip()" id="autoBtn">&#x23F1; 自动翻转</button>
+  <button class="btn btn-warning" onclick="resetAll()">&#x1F504; 重置全部</button>
+</div>
+
+<!-- Quiz Panel -->
+<div id="quizPanel">
+  <div class="quiz-card" id="quizCard">
+    <div class="part-badge part-1" id="qPartBadge">Part 1 · 简单</div>
+    <div class="card-num" id="qCardNum">#1</div>
+    <div class="quiz-zh" id="qZh">该起床了。</div>
+    <div class="quiz-prompt">请用英文写出上面这句话 &nbsp; <kbd style="background:rgba(255,255,255,.1);border-radius:4px;padding:1px 5px;font-size:.7rem;border:1px solid rgba(255,255,255,.2)">]</kbd> 下一题</div>
+    <div class="quiz-input-wrap">
+      <input type="text" class="quiz-input" id="qInput"
+        placeholder="Type the English sentence..."
+        autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+        onkeydown="if(event.key==='Enter')submitQuiz()">
+      <button class="quiz-submit" onclick="submitQuiz()">确认</button>
+    </div>
+    <div class="quiz-feedback" id="qFeedback"></div>
+    <div class="quiz-answer-reveal" id="qReveal">
+      正确答案：<strong id="qAnswer"></strong>
+      <button class="speak-btn" onclick="speakQuizAnswer()" title="播放发音 (A)">&#x1F50A;</button>
+    </div>
+  </div>
+  <div class="quiz-nav-row">
+    <button class="nav-btn" onclick="qPrev()" id="qPrevBtn">&#x25C4;</button>
+    <button class="btn btn-secondary" onclick="qSkip()" id="qSkipBtn">&#x23E9; 跳过</button>
+    <button class="btn btn-primary"   onclick="qNext()" id="qNextBtn" style="display:none">&#x25BA; 下一题</button>
+    <button class="nav-btn" onclick="qPrev()" id="qNextNavBtn" style="display:none">&#x25BA;</button>
+  </div>
+  <div class="quiz-stats">
+    <div class="stat-item">已答: <span id="qSeen">0</span></div>
+    <div class="stat-item">&#x2713; 答对: <span class="s-know" id="qCorrect">0</span></div>
+    <div class="stat-item">&#x2717; 答错: <span class="s-unknow" id="qWrong">0</span></div>
+  </div>
+</div>
+
+<div class="progress-wrap">
+  <div class="progress-info">
+    <span id="progressText">第 1 / 300 张</span>
+    <span id="progressPct">0%</span>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0.3%"></div></div>
+</div>
+
+<div class="scene" id="cardScene" onclick="flipCard()">
+  <div class="card-inner" id="cardInner">
+    <div class="card-face card-front">
+      <div class="part-badge part-1" id="partBadge">Part 1 · 简单</div>
+      <div class="card-num" id="cardNum">#1</div>
+      <div class="card-label">ENGLISH</div>
+      <div class="card-main" id="cardEn">Time to get up.</div>
+      <div class="card-hint">点击查看中文翻译 &#x25BC;</div>
+      <button class="speak-btn" onclick="speakCurrentEn()" title="播放发音 (A)">&#x1F50A;</button>
+    </div>
+    <div class="card-face card-back">
+      <div class="card-num" id="cardNum2">#1</div>
+      <div class="card-label">中文翻译</div>
+      <div class="card-main" id="cardZh">该起床了。</div>
+      <button class="speak-btn" onclick="speakCurrentEn()" title="播放发音 (A)">&#x1F50A;</button>
+    </div>
+  </div>
+</div>
+
+<div class="nav-row" id="flashNav">
+  <button class="nav-btn" onclick="prevCard()" id="prevBtn">&#x25C4;</button>
+  <div class="judge-row">
+    <button class="btn btn-danger" onclick="markCard('unknow')">&#x2717; 不认识</button>
+    <button class="btn btn-success" onclick="markCard('know')">&#x2713; 认识</button>
+  </div>
+  <button class="nav-btn" onclick="nextCard()" id="nextBtn">&#x25BA;</button>
+</div>
+
+<div class="status-stats" id="flashStats">
+  <div class="stat-item">已看: <span id="sSeen">0</span></div>
+  <div class="stat-item">&#x2713; 认识: <span class="s-know" id="sKnow">0</span></div>
+  <div class="stat-item">&#x2717; 不认识: <span class="s-unknow" id="sUnknow">0</span></div>
+</div>
+
+<div class="keyboard-hint" id="flashHint">
+  <kbd>Space</kbd> 翻转+发音 &nbsp;
+  <kbd>&larr;</kbd> 上一张 &nbsp;
+  <kbd>&rarr;</kbd> 下一张 &nbsp;
+  <kbd>1</kbd> 认识 &nbsp;
+  <kbd>2</kbd> 不认识 &nbsp;
+  <kbd>3</kbd> 发音
+</div>
+
+<div class="completion" id="completion">
+  <div class="completion-box">
+    <h2>&#x1F389; 太棒了！</h2>
+    <p id="completionMsg">你已经完成了本轮全部卡片的学习！</p>
+    <div class="completion-stats">
+      <div class="c-stat"><div class="num" style="color:#34d399" id="cKnow">0</div><div class="label" id="cKnowLabel">认识</div></div>
+      <div class="c-stat"><div class="num" style="color:#f87171" id="cUnknow">0</div><div class="label" id="cUnknowLabel">不认识</div></div>
+    </div>
+    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+      <button class="btn btn-primary" onclick="reviewUnknow()" id="reviewBtn">&#x1F501; 复习不认识的</button>
+      <button class="btn btn-secondary" onclick="closeCompletion()">&#x2715; 关闭</button>
+    </div>
+  </div>
+</div>
+
+<script>
+
+const ALL_CARDS = [{"id": 1, "en": "Time to get up.", "zh": "该起床了。"}, {"id": 2, "en": "I'm still sleepy.", "zh": "我还很困。"}, {"id": 3, "en": "I go to the bathroom.", "zh": "我去洗手间。"}, {"id": 4, "en": "I brush my teeth.", "zh": "我刷牙。"}, {"id": 5, "en": "I comb my hair.", "zh": "我梳头。"}, {"id": 6, "en": "I get dressed quickly.", "zh": "我快速穿好衣服。"}, {"id": 7, "en": "I make my bed.", "zh": "我整理床铺。"}, {"id": 8, "en": "I boil some water.", "zh": "我烧些水。"}, {"id": 9, "en": "I pour a glass of milk.", "zh": "我倒一杯牛奶。"}, {"id": 10, "en": "I make some coffee.", "zh": "我泡咖啡。"}, {"id": 11, "en": "Can you fry me an egg?", "zh": "你能帮我煎个鸡蛋吗？"}, {"id": 12, "en": "Breakfast is ready.", "zh": "早餐准备好了。"}, {"id": 13, "en": "I have toast and eggs.", "zh": "我吃了吐司和鸡蛋。"}, {"id": 14, "en": "I check my phone.", "zh": "我查看手机。"}, {"id": 15, "en": "What time is it?", "zh": "现在几点了？"}, {"id": 16, "en": "I'm running late.", "zh": "我要迟到了。"}, {"id": 17, "en": "I put on my shoes.", "zh": "我穿上鞋子。"}, {"id": 18, "en": "I leave the house.", "zh": "我出门了。"}, {"id": 19, "en": "The weather is nice.", "zh": "天气很好。"}, {"id": 20, "en": "It might rain today.", "zh": "今天可能会下雨。"}, {"id": 21, "en": "I forgot my umbrella.", "zh": "我忘了带伞。"}, {"id": 22, "en": "I get on the bus.", "zh": "我上公交车。"}, {"id": 23, "en": "I'm stuck in traffic.", "zh": "我堵车了。"}, {"id": 24, "en": "I arrive at work.", "zh": "我到公司了。"}, {"id": 25, "en": "Sorry, I'm late.", "zh": "抱歉，我迟到了。"}, {"id": 26, "en": "It won't happen again.", "zh": "不会再发生了。"}, {"id": 27, "en": "Don't worry about it.", "zh": "别担心。"}, {"id": 28, "en": "I appreciate it.", "zh": "我很感激。"}, {"id": 29, "en": "That's very kind.", "zh": "你真热心。"}, {"id": 30, "en": "How are you today?", "zh": "你今天好吗？"}, {"id": 31, "en": "I'm pretty good.", "zh": "我挺好的。"}, {"id": 32, "en": "Good to see you.", "zh": "见到你很高兴。"}, {"id": 33, "en": "I check my emails.", "zh": "我查看邮件。"}, {"id": 34, "en": "I answer the phone.", "zh": "我接电话。"}, {"id": 35, "en": "I have a meeting soon.", "zh": "我马上有个会。"}, {"id": 36, "en": "I'll call you later.", "zh": "我晚点打给你。"}, {"id": 37, "en": "I'm working on it.", "zh": "我正在处理。"}, {"id": 38, "en": "Give me a minute.", "zh": "等我一分钟。"}, {"id": 39, "en": "What do you think?", "zh": "你觉得呢？"}, {"id": 40, "en": "I agree with you.", "zh": "我同意你的看法。"}, {"id": 41, "en": "That's a good idea.", "zh": "好主意。"}, {"id": 42, "en": "I don't think so.", "zh": "我不这么认为。"}, {"id": 43, "en": "I see your point.", "zh": "我明白你的意思。"}, {"id": 44, "en": "Let me think about it.", "zh": "让我想想。"}, {"id": 45, "en": "I take a break.", "zh": "我休息一下。"}, {"id": 46, "en": "It's time for lunch.", "zh": "午餐时间到了。"}, {"id": 47, "en": "Let's eat out.", "zh": "我们出去吃吧。"}, {"id": 48, "en": "I'm ready to go.", "zh": "我准备好了。"}, {"id": 49, "en": "What should we eat?", "zh": "我们吃什么？"}, {"id": 50, "en": "I'll have the pizza.", "zh": "我要披萨。"}, {"id": 51, "en": "I like it spicy.", "zh": "我喜欢辣的。"}, {"id": 52, "en": "I'll get the same.", "zh": "我也要一样的。"}, {"id": 53, "en": "I need more napkins.", "zh": "我需要更多餐巾纸。"}, {"id": 54, "en": "It's really delicious.", "zh": "真的很好吃。"}, {"id": 55, "en": "I'm full now.", "zh": "我吃饱了。"}, {"id": 56, "en": "Let's split the bill.", "zh": "我们AA制吧。"}, {"id": 57, "en": "I'll pay in cash.", "zh": "我用现金付。"}, {"id": 58, "en": "I finish my work.", "zh": "我完成工作了。"}, {"id": 59, "en": "I shut down my computer.", "zh": "我关电脑。"}, {"id": 60, "en": "I get off work at 6:00.", "zh": "我六点下班。"}, {"id": 61, "en": "I got to go now.", "zh": "我得走了。"}, {"id": 62, "en": "See you tomorrow.", "zh": "明天见。"}, {"id": 63, "en": "I leave the office.", "zh": "我离开办公室。"}, {"id": 64, "en": "I feel so tired.", "zh": "我感到很累。"}, {"id": 65, "en": "Are you feeling okay?", "zh": "你还好吗？"}, {"id": 66, "en": "I didn't sleep well.", "zh": "我昨晚没睡好。"}, {"id": 67, "en": "Do you have a minute?", "zh": "你有空吗？"}, {"id": 68, "en": "Let's go grocery shopping.", "zh": "我们去买菜吧。"}, {"id": 69, "en": "Can you help me?", "zh": "你能帮帮我吗？"}, {"id": 70, "en": "Is this in stock?", "zh": "这个有货吗？"}, {"id": 71, "en": "Thank you for the help.", "zh": "谢谢你的帮助。"}, {"id": 72, "en": "Are you in line?", "zh": "你在排队吗？"}, {"id": 73, "en": "Can I sit here?", "zh": "我可以坐这里吗？"}, {"id": 74, "en": "Where is the restroom?", "zh": "洗手间在哪里？"}, {"id": 75, "en": "It's over there.", "zh": "在那边。"}, {"id": 76, "en": "Can you show me?", "zh": "你能指给我看吗？"}, {"id": 77, "en": "I didn't catch that.", "zh": "我没听清。"}, {"id": 78, "en": "Please speak slowly.", "zh": "请说慢一点。"}, {"id": 79, "en": "I walk home today.", "zh": "我今天走路回家。"}, {"id": 80, "en": "I'm on my way.", "zh": "我在路上。"}, {"id": 81, "en": "I finally get home.", "zh": "我终于到家了。"}, {"id": 82, "en": "You're early today.", "zh": "你今天回来得早。"}, {"id": 83, "en": "I take off my shoes.", "zh": "我脱掉鞋子。"}, {"id": 84, "en": "I sit on the couch.", "zh": "我坐在沙发上。"}, {"id": 85, "en": "Did you see my phone?", "zh": "你看到我的手机了吗？"}, {"id": 86, "en": "I haven't seen it.", "zh": "我没看到。"}, {"id": 87, "en": "What are you doing?", "zh": "你在做什么？"}, {"id": 88, "en": "I'm watching TV.", "zh": "我在看电视。"}, {"id": 89, "en": "How was your day?", "zh": "你今天过得怎么样？"}, {"id": 90, "en": "I had a busy day.", "zh": "我今天很忙。"}, {"id": 91, "en": "You free on Saturday?", "zh": "你周六有空吗？"}, {"id": 92, "en": "Let's meet this weekend.", "zh": "我们这周末见吧。"}, {"id": 93, "en": "Sounds good to me.", "zh": "我觉得可以。"}, {"id": 94, "en": "What's for dinner?", "zh": "晚饭吃什么？"}, {"id": 95, "en": "Let's eat together.", "zh": "我们一起吃吧。"}, {"id": 96, "en": "Please pass the salt.", "zh": "请把盐递给我。"}, {"id": 97, "en": "I'll wash the dishes.", "zh": "我来洗碗。"}, {"id": 98, "en": "I feel sleepy.", "zh": "我困了。"}, {"id": 99, "en": "I set my alarm.", "zh": "我定闹钟。"}, {"id": 100, "en": "I fall asleep slowly.", "zh": "我慢慢入睡。"}, {"id": 101, "en": "How have you been lately?", "zh": "你最近怎么样？"}, {"id": 102, "en": "You look awesome today.", "zh": "你今天看起来很棒。"}, {"id": 103, "en": "It's been a long time.", "zh": "好久不见。"}, {"id": 104, "en": "You haven't changed at all.", "zh": "你一点都没变。"}, {"id": 105, "en": "Let's hang out more often.", "zh": "我们多聚聚吧。"}, {"id": 106, "en": "What day is it today?", "zh": "今天是星期几？"}, {"id": 107, "en": "I can't believe it's Friday.", "zh": "不敢相信今天是周五。"}, {"id": 108, "en": "I'm in a good mood.", "zh": "我心情很好。"}, {"id": 109, "en": "How's the weather today?", "zh": "今天天气怎么样？"}, {"id": 110, "en": "It's freezing cold today.", "zh": "今天冷得要命。"}, {"id": 111, "en": "It's raining heavily outside.", "zh": "外面下着大雨。"}, {"id": 112, "en": "It's finally clearing up today.", "zh": "今天天终于放晴了。"}, {"id": 113, "en": "You look so familiar.", "zh": "你看起来好面熟。"}, {"id": 114, "en": "Have we met before?", "zh": "我们以前见过吗？"}, {"id": 115, "en": "Do you live around here?", "zh": "你住在这附近吗？"}, {"id": 116, "en": "What do you do for a living?", "zh": "你是做什么工作的？"}, {"id": 117, "en": "I work in marketing.", "zh": "我做市场营销。"}, {"id": 118, "en": "I plan to change my job.", "zh": "我打算换工作。"}, {"id": 119, "en": "I've heard a lot about you.", "zh": "我听说过很多关于你的事。"}, {"id": 120, "en": "I think we have mutual friends.", "zh": "我觉得我们有共同的朋友。"}, {"id": 121, "en": "How many siblings do you have?", "zh": "你有几个兄弟姐妹？"}, {"id": 122, "en": "I am the only son in my family.", "zh": "我是家里独子。"}, {"id": 123, "en": "Did you stay up late last night?", "zh": "你昨晚熬夜了吗？"}, {"id": 124, "en": "I sleep 8 hours usually.", "zh": "我通常睡8个小时。"}, {"id": 125, "en": "I gained 5 pounds recently.", "zh": "我最近胖了5磅。"}, {"id": 126, "en": "I want to lose weight.", "zh": "我想减肥。"}, {"id": 127, "en": "How much do you weigh?", "zh": "你多重？"}, {"id": 128, "en": "I'm trying to stay fit.", "zh": "我在努力保持身材。"}, {"id": 129, "en": "How often do you exercise?", "zh": "你多久锻炼一次？"}, {"id": 130, "en": "I do yoga in the morning.", "zh": "我早上做瑜伽。"}, {"id": 131, "en": "I skip lunch sometimes.", "zh": "我有时候不吃午饭。"}, {"id": 132, "en": "I'm getting used to it.", "zh": "我慢慢习惯了。"}, {"id": 133, "en": "Let's go for a walk.", "zh": "我们去散步吧。"}, {"id": 134, "en": "How tall are you exactly?", "zh": "你到底有多高？"}, {"id": 135, "en": "I'm 5 ft 8 in.", "zh": "我身高5英尺8英寸。"}, {"id": 136, "en": "I'm shorter than average.", "zh": "我比平均身高矮。"}, {"id": 137, "en": "How old are you turning?", "zh": "你快满几岁了？"}, {"id": 138, "en": "I just turned 21.", "zh": "我刚满21岁。"}, {"id": 139, "en": "How old do I look?", "zh": "我看起来多大？"}, {"id": 140, "en": "I'm younger than you think.", "zh": "我比你想象的年轻。"}, {"id": 141, "en": "We are about the same age.", "zh": "我们差不多大。"}, {"id": 142, "en": "Come over for dinner tonight.", "zh": "今晚过来吃晚饭吧。"}, {"id": 143, "en": "Thanks for having me over.", "zh": "谢谢你的招待。"}, {"id": 144, "en": "What would you like to drink?", "zh": "你想喝什么？"}, {"id": 145, "en": "Make yourself at home.", "zh": "请当自己家一样，别客气。"}, {"id": 146, "en": "I'm thinking of taking a trip.", "zh": "我想去旅行。"}, {"id": 147, "en": "Do you want to join us?", "zh": "你想加入我们吗？"}, {"id": 148, "en": "Let me check the schedule.", "zh": "让我看看日程安排。"}, {"id": 149, "en": "I'm looking forward to it.", "zh": "我很期待。"}, {"id": 150, "en": "Did you get my email?", "zh": "你收到我的邮件了吗？"}, {"id": 151, "en": "I'm waiting for a reply.", "zh": "我在等回复。"}, {"id": 152, "en": "I'm not sure what to do.", "zh": "我不知道该怎么办。"}, {"id": 153, "en": "Let's find a solution together.", "zh": "我们一起来想解决办法。"}, {"id": 154, "en": "Should I change my mind?", "zh": "我应该改变主意吗？"}, {"id": 155, "en": "Your opinion matters to me.", "zh": "你的意见对我来说很重要。"}, {"id": 156, "en": "You've already done your best.", "zh": "你已经尽力了。"}, {"id": 157, "en": "I'm sorry to disturb you.", "zh": "很抱歉打扰你。"}, {"id": 158, "en": "Can I use your phone?", "zh": "我能借你的手机用一下吗？"}, {"id": 159, "en": "My battery is dying.", "zh": "我的手机快没电了。"}, {"id": 160, "en": "Is this a good time?", "zh": "现在方便吗？"}, {"id": 161, "en": "You're breaking up.", "zh": "你的信号不好（断断续续）。"}, {"id": 162, "en": "I'll text you instead.", "zh": "那我给你发短信吧。"}, {"id": 163, "en": "I see what you mean.", "zh": "我明白你的意思。"}, {"id": 164, "en": "Let's talk about it later.", "zh": "我们之后再谈这个。"}, {"id": 165, "en": "I'm not feeling well today.", "zh": "我今天不太舒服。"}, {"id": 166, "en": "I have a terrible headache.", "zh": "我头疼得厉害。"}, {"id": 167, "en": "I can't stop sneezing.", "zh": "我止不住打喷嚏。"}, {"id": 168, "en": "I'm allergic to peanuts.", "zh": "我对花生过敏。"}, {"id": 169, "en": "I'm worried about you.", "zh": "我很担心你。"}, {"id": 170, "en": "I feel much better now.", "zh": "我现在好多了。"}, {"id": 171, "en": "I'm grateful for your support.", "zh": "我很感谢你的支持。"}, {"id": 172, "en": "May I have a menu?", "zh": "请给我菜单好吗？"}, {"id": 173, "en": "What do you recommend?", "zh": "你有什么推荐？"}, {"id": 174, "en": "I need a few more minutes.", "zh": "我再看看，还需要几分钟。"}, {"id": 175, "en": "We're ready to order.", "zh": "我们准备好点餐了。"}, {"id": 176, "en": "I prefer tea to coffee.", "zh": "比起咖啡我更喜欢茶。"}, {"id": 177, "en": "Can we have some water?", "zh": "能给我们来点水吗？"}, {"id": 178, "en": "This isn't what I ordered.", "zh": "这不是我点的菜。"}, {"id": 179, "en": "Does this taste too salty?", "zh": "这个是不是太咸了？"}, {"id": 180, "en": "Any plans for the weekend?", "zh": "周末有什么计划吗？"}, {"id": 181, "en": "What time should we meet?", "zh": "我们几点见面？"}, {"id": 182, "en": "I'll pick you up at 7:00.", "zh": "我七点来接你。"}, {"id": 183, "en": "It's getting late already.", "zh": "已经很晚了。"}, {"id": 184, "en": "I had a great time today.", "zh": "今天玩得很开心。"}, {"id": 185, "en": "I'd love to see you soon.", "zh": "希望很快能再见。"}, {"id": 186, "en": "Did you get a haircut?", "zh": "你剪头发了吗？"}, {"id": 187, "en": "What's your favorite movie?", "zh": "你最喜欢什么电影？"}, {"id": 188, "en": "Can I try this on?", "zh": "我可以试穿吗？"}, {"id": 189, "en": "Do you have a smaller size?", "zh": "有小一号的吗？"}, {"id": 190, "en": "This is a bit too expensive.", "zh": "这个有点太贵了。"}, {"id": 191, "en": "Should I buy this shirt?", "zh": "我应该买这件衬衫吗？"}, {"id": 192, "en": "Which color do you prefer?", "zh": "你更喜欢哪个颜色？"}, {"id": 193, "en": "This color fits you better.", "zh": "这个颜色更适合你。"}, {"id": 194, "en": "Do you accept credit cards?", "zh": "可以刷信用卡吗？"}, {"id": 195, "en": "I need to return this shirt.", "zh": "我要退这件衬衫。"}, {"id": 196, "en": "Can you help with laundry?", "zh": "你能帮忙洗衣服吗？"}, {"id": 197, "en": "I vacuum twice a week.", "zh": "我一周吸两次地。"}, {"id": 198, "en": "What time will you be back?", "zh": "你什么时候回来？"}, {"id": 199, "en": "I have a ton of work today.", "zh": "我今天有一大堆工作。"}, {"id": 200, "en": "I'm taking a day off tomorrow.", "zh": "我明天请假一天。"}, {"id": 201, "en": "It's been raining all day long.", "zh": "下了一整天雨。"}, {"id": 202, "en": "You'd better bring an umbrella with you.", "zh": "你最好带把伞。"}, {"id": 203, "en": "Excuse me, how do I get to the mall?", "zh": "请问怎么去商场？"}, {"id": 204, "en": "Go straight and turn left at the corner.", "zh": "直走，在拐角处左转。"}, {"id": 205, "en": "We've known each other for a long time.", "zh": "我们认识很久了。"}, {"id": 206, "en": "Thanks for always having my back.", "zh": "谢谢你总是支持我。"}, {"id": 207, "en": "It's getting dark much earlier these days.", "zh": "最近天黑得早多了。"}, {"id": 208, "en": "Do you mind if I open the window?", "zh": "你介意我开窗吗？"}, {"id": 209, "en": "I think you have the wrong number.", "zh": "我想你打错电话了。"}, {"id": 210, "en": "There's no one here by that name.", "zh": "这里没有叫这个名字的人。"}, {"id": 211, "en": "Could you please turn down the music?", "zh": "能不能把音乐关小一点？"}, {"id": 212, "en": "Keep your temper under control.", "zh": "控制一下你的脾气。"}, {"id": 213, "en": "I'm so stressed out these days.", "zh": "最近压力太大了。"}, {"id": 214, "en": "Have you been sleeping enough?", "zh": "你最近睡眠够吗？"}, {"id": 215, "en": "I couldn't sleep again last night.", "zh": "昨晚又失眠了。"}, {"id": 216, "en": "Did you lose some weight recently?", "zh": "你最近是不是瘦了？"}, {"id": 217, "en": "Have you been exercising regularly?", "zh": "你最近有规律地锻炼吗？"}, {"id": 218, "en": "I work out three times a week.", "zh": "我一周锻炼三次。"}, {"id": 219, "en": "Do you want to join me at the gym?", "zh": "你想和我一起去健身房吗？"}, {"id": 220, "en": "The storm is finally moving out.", "zh": "暴风雨终于过去了。"}, {"id": 221, "en": "I still can't get used to the weather here.", "zh": "我还是不适应这儿的天气。"}, {"id": 222, "en": "Are you seeing anyone right now?", "zh": "你现在有在交往对象吗？"}, {"id": 223, "en": "I've been single for a while.", "zh": "我单身一段时间了。"}, {"id": 224, "en": "What do you feel like eating tonight?", "zh": "今晚你想吃什么？"}, {"id": 225, "en": "I'm in the mood for something spicy.", "zh": "我想吃点辣的。"}, {"id": 226, "en": "Don't talk with your mouth full.", "zh": "嘴里有东西时别说话。"}, {"id": 227, "en": "What do you call this in English?", "zh": "这个用英语怎么说？"}, {"id": 228, "en": "How long does it take to walk there?", "zh": "走路过去要多久？"}, {"id": 229, "en": "It's about a 10-minute walk from here.", "zh": "从这儿走大约10分钟。"}, {"id": 230, "en": "I'd like a cappuccino with almond milk.", "zh": "我要一杯杏仁奶卡布奇诺。"}, {"id": 231, "en": "Can I get an extra shot of espresso?", "zh": "可以加一份浓缩咖啡吗？"}, {"id": 232, "en": "You're wearing your shirt backwards.", "zh": "你的衬衫穿反了。"}, {"id": 233, "en": "That jacket looks great on you.", "zh": "那件外套你穿很好看。"}, {"id": 234, "en": "You look like a friend of mine.", "zh": "你长得像我的一个朋友。"}, {"id": 235, "en": "Would you like to have a drink after work?", "zh": "下班后想喝一杯吗？"}, {"id": 236, "en": "I'm excited for the long weekend.", "zh": "我对长周末很期待。"}, {"id": 237, "en": "My brother drives me crazy sometimes.", "zh": "我哥哥有时候真让我抓狂。"}, {"id": 238, "en": "He has a great sense of humor.", "zh": "他很有幽默感。"}, {"id": 239, "en": "I couldn't get through to your phone.", "zh": "我打不通你的电话。"}, {"id": 240, "en": "Sorry for keeping you waiting.", "zh": "抱歉让你久等了。"}, {"id": 241, "en": "I'm on another call right now.", "zh": "我现在在接另一个电话。"}, {"id": 242, "en": "Why are you feeling so down today?", "zh": "你今天为什么情绪这么低落？"}, {"id": 243, "en": "Let's take a walk and get some fresh air.", "zh": "我们去走走，透透气。"}, {"id": 244, "en": "I've been coughing all night.", "zh": "我咳了一整晚。"}, {"id": 245, "en": "Make sure to drink plenty of water.", "zh": "一定要多喝水。"}, {"id": 246, "en": "I should probably see a doctor soon.", "zh": "我可能该去看看医生。"}, {"id": 247, "en": "How often do I need to take this medicine?", "zh": "这个药多久吃一次？"}, {"id": 248, "en": "Are there any side effects?", "zh": "有什么副作用吗？"}, {"id": 249, "en": "Can I exchange this for a larger size?", "zh": "能换一个大号的吗？"}, {"id": 250, "en": "Do you have this in another color?", "zh": "有其他颜色的吗？"}, {"id": 251, "en": "I'm thinking about getting a dog.", "zh": "我在考虑养一只狗。"}, {"id": 252, "en": "Why don't you give it a try?", "zh": "你为什么不试试看呢？"}, {"id": 253, "en": "There's nothing to worry about.", "zh": "没什么好担心的。"}, {"id": 254, "en": "Let's order takeout tonight instead.", "zh": "今晚我们叫外卖吧。"}, {"id": 255, "en": "That's exactly what I was thinking.", "zh": "我就是这么想的。"}, {"id": 256, "en": "Would you mind taking a photo of us?", "zh": "能帮我们拍张照吗？"}, {"id": 257, "en": "Have you backed up your photos recently?", "zh": "你最近备份照片了吗？"}, {"id": 258, "en": "My phone storage is completely full.", "zh": "我手机内存完全满了。"}, {"id": 259, "en": "I'm having trouble with the connection.", "zh": "我的网络连接有问题。"}, {"id": 260, "en": "I'm trying to cut back on sugar.", "zh": "我在尽量少吃糖。"}, {"id": 261, "en": "This is way too salty for me.", "zh": "这个对我来说太咸了。"}, {"id": 262, "en": "I am the youngest in my family.", "zh": "我是家里最小的。"}, {"id": 263, "en": "I think there's a mistake on this bill.", "zh": "我觉得这张账单有误。"}, {"id": 264, "en": "Is service charge included?", "zh": "包含服务费吗？"}, {"id": 265, "en": "Have you seen any good movies lately?", "zh": "你最近看了什么好电影吗？"}, {"id": 266, "en": "What kind of music do you like?", "zh": "你喜欢什么类型的音乐？"}, {"id": 267, "en": "I spend too much time on social media.", "zh": "我在社交媒体上花太多时间了。"}, {"id": 268, "en": "Family means everything to me.", "zh": "家人对我来说就是一切。"}, {"id": 269, "en": "I take after my mother a lot.", "zh": "我很像我妈妈。"}, {"id": 270, "en": "I'm terrible at memorizing things.", "zh": "我记性很差。"}, {"id": 271, "en": "Can you take out the trash tonight?", "zh": "你今晚能倒一下垃圾吗？"}, {"id": 272, "en": "I'll do the dishes after dinner.", "zh": "晚饭后我来洗碗。"}, {"id": 273, "en": "The air conditioner is not working.", "zh": "空调坏了。"}, {"id": 274, "en": "Could you take a look at this for me?", "zh": "你能帮我看看这个吗？"}, {"id": 275, "en": "How much is a one-way ticket?", "zh": "单程票多少钱？"}, {"id": 276, "en": "Is there free parking nearby?", "zh": "附近有免费停车吗？"}, {"id": 277, "en": "Did you hear what happened yesterday?", "zh": "你听说昨天发生的事了吗？"}, {"id": 278, "en": "There seems to be a misunderstanding.", "zh": "好像有误会。"}, {"id": 279, "en": "Are you free this coming weekend?", "zh": "这个周末你有空吗？"}, {"id": 280, "en": "What time should I come over?", "zh": "我几点过去合适？"}, {"id": 281, "en": "That's very kind of you to say.", "zh": "你这么说真好。"}, {"id": 282, "en": "You're so easy to talk to.", "zh": "和你聊天真轻松。"}, {"id": 283, "en": "Have you ever been to Europe before?", "zh": "你以前去过欧洲吗？"}, {"id": 284, "en": "Is there a shortcut I can take?", "zh": "有近路可以走吗？"}, {"id": 285, "en": "Do you need to work overtime tonight?", "zh": "你今晚需要加班吗？"}, {"id": 286, "en": "I spent way too much this month.", "zh": "这个月我花太多了。"}, {"id": 287, "en": "What time does the store close?", "zh": "商店几点关门？"}, {"id": 288, "en": "I'm hoping for a promotion soon.", "zh": "我希望能很快升职。"}, {"id": 289, "en": "Let's get started with the meeting.", "zh": "我们开始开会吧。"}, {"id": 290, "en": "I didn't receive your message somehow.", "zh": "我不知怎么没收到你的消息。"}, {"id": 291, "en": "I have to talk to her in person.", "zh": "我得当面跟她谈。"}, {"id": 292, "en": "We don't see eye to eye on everything.", "zh": "我们不是在所有事情上都意见一致。"}, {"id": 293, "en": "What would you do in my situation?", "zh": "如果你是我，你会怎么做？"}, {"id": 294, "en": "I wouldn't recommend doing that.", "zh": "我不建议那样做。"}, {"id": 295, "en": "The faucet in the kitchen is leaking.", "zh": "厨房的水龙头漏水了。"}, {"id": 296, "en": "I need to call a plumber tomorrow.", "zh": "我明天需要叫个水管工。"}, {"id": 297, "en": "I'm learning to trust myself more.", "zh": "我在学着更多地相信自己。"}, {"id": 298, "en": "It's never too late to learn something new.", "zh": "学什么都永远不会太晚。"}, {"id": 299, "en": "I should probably get going now.", "zh": "我可能该走了。"}, {"id": 300, "en": "It was so great seeing you again.", "zh": "很高兴再次见到你。"}];
+
+let deck = [...ALL_CARDS];
+let idx = 0;
+let flipped = false;
+let mode = 'all';
+let partFilter = 0;
+let shuffle = true;
+let autoFlipTimer = null;
+let autoFlipOn = false;
+let status = {};
+
+// ─── Persistence (localStorage) ───────────────────────────
+const STORAGE_KEY = 'daily_en300_progress';
+function saveProgress() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(status));
+}
+function loadProgress() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) status = JSON.parse(saved);
+  } catch(e) {}
+}
+loadProgress();
+
+// Quiz state
+let qDeck = [];
+let qIdx  = 0;
+let qAnswered = false;
+let qCorrectCount = 0;
+let qWrongCount   = 0;
+let qSeenCount    = 0;
+
+function getPartOf(id) {
+  if (id <= 100) return 1;
+  if (id <= 200) return 2;
+  return 3;
+}
+
+function buildDeck() {
+  let cards = [...ALL_CARDS];
+  if (mode === 'know')   cards = cards.filter(c => status[c.id] === 'know');
+  if (mode === 'unknow') cards = cards.filter(c => status[c.id] === 'unknow');
+  if (mode === 'part' && partFilter > 0) cards = cards.filter(c => getPartOf(c.id) === partFilter);
+  if (shuffle) {
+    for (let i = cards.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [cards[i], cards[j]] = [cards[j], cards[i]];
+    }
+  }
+  deck = cards;
+  idx = 0;
+}
+
+function renderCard() {
+  if (deck.length === 0) {
+    document.getElementById('cardEn').textContent = '(无卡片)';
+    document.getElementById('cardZh').textContent = '(无卡片)';
+    return;
+  }
+  const c = deck[idx];
+  const part = getPartOf(c.id);
+  const partNames = ['', '简单', '中等', '困难'];
+  const partColors = ['', 'part-1', 'part-2', 'part-3'];
+
+  document.getElementById('cardEn').textContent = c.en;
+  document.getElementById('cardZh').textContent = c.zh;
+  document.getElementById('cardNum').textContent = '#' + c.id;
+  document.getElementById('cardNum2').textContent = '#' + c.id;
+
+  const badge = document.getElementById('partBadge');
+  badge.textContent = 'Part ' + part + ' · ' + partNames[part];
+  badge.className = 'part-badge ' + partColors[part];
+
+  const scene = document.getElementById('cardScene');
+  scene.classList.remove('flipped');
+  flipped = false;
+
+  const pct = deck.length > 0 ? Math.round((idx + 1) / deck.length * 100) : 0;
+  document.getElementById('progressText').textContent = '第 ' + (idx+1) + ' / ' + deck.length + ' 张';
+  document.getElementById('progressPct').textContent = pct + '%';
+  document.getElementById('progressFill').style.width = pct + '%';
+
+  document.getElementById('prevBtn').disabled = idx === 0;
+  document.getElementById('nextBtn').disabled = idx === deck.length - 1;
+
+  const know = Object.values(status).filter(v => v === 'know').length;
+  const unknow = Object.values(status).filter(v => v === 'unknow').length;
+  const seen = Object.keys(status).length;
+  document.getElementById('sSeen').textContent = seen;
+  document.getElementById('sKnow').textContent = know;
+  document.getElementById('sUnknow').textContent = unknow;
+}
+
+function flipCard() {
+  const scene = document.getElementById('cardScene');
+  flipped = !flipped;
+  scene.classList.toggle('flipped', flipped);
+  // Auto-speak when flipping to show English (front → back)
+  if (flipped) speakCurrentEn();
+}
+
+function nextCard() {
+  if (idx < deck.length - 1) { idx++; renderCard(); }
+  else showCompletion();
+}
+
+function prevCard() {
+  if (idx > 0) { idx--; renderCard(); }
+}
+
+function markCard(mark) {
+  const c = deck[idx];
+  status[c.id] = mark;
+  saveProgress();
+  nextCard();
+}
+
+function setMode(m) {
+  mode = m;
+  ['all','unknow','know','part','quiz'].forEach(t => {
+    const el = document.getElementById('tab-'+t);
+    if (el) el.classList.toggle('active', t === m);
+  });
+  document.getElementById('partFilter').style.display = m === 'part' ? 'flex' : 'none';
+
+  const isQuiz = m === 'quiz';
+  // Show/hide card zone vs quiz zone
+  document.getElementById('cardScene').style.display   = isQuiz ? 'none' : '';
+  document.getElementById('flashNav').style.display    = isQuiz ? 'none' : '';
+  document.getElementById('flashStats').style.display  = isQuiz ? 'none' : '';
+  document.getElementById('flashHint').style.display   = isQuiz ? 'none' : '';
+  document.getElementById('shuffleBtn').style.display  = isQuiz ? 'none' : '';
+  document.getElementById('autoBtn').style.display     = isQuiz ? 'none' : '';
+  document.getElementById('quizPanel').classList.toggle('show', isQuiz);
+
+  if (isQuiz) {
+    initQuiz();
+  } else {
+    buildDeck(); renderCard();
+  }
+}
+
+function setPart(p) {
+  partFilter = p;
+  [0,1,2,3].forEach(i => {
+    document.getElementById('pf-'+i).classList.toggle('active', i === p);
+  });
+  buildDeck(); renderCard();
+}
+
+function toggleShuffle() {
+  shuffle = !shuffle;
+  document.getElementById('shuffleBtn').classList.toggle('active', shuffle);
+  document.getElementById('shuffleBtn').textContent = shuffle ? '🔀 随机 ON' : '🔀 随机模式';
+  buildDeck(); renderCard();
+}
+
+function toggleAutoFlip() {
+  autoFlipOn = !autoFlipOn;
+  const btn = document.getElementById('autoBtn');
+  btn.classList.toggle('active', autoFlipOn);
+  btn.textContent = autoFlipOn ? '⏱ 自动 ON' : '⏱ 自动翻转';
+  if (autoFlipOn) startAutoFlip();
+  else stopAutoFlip();
+}
+
+function startAutoFlip() {
+  stopAutoFlip();
+  autoFlipTimer = setInterval(() => {
+    if (!flipped) flipCard();
+    else nextCard();
+  }, 2500);
+}
+
+function stopAutoFlip() {
+  if (autoFlipTimer) { clearInterval(autoFlipTimer); autoFlipTimer = null; }
+}
+
+function resetAll() {
+  if (!confirm('确定重置所有学习进度吗？')) return;
+  status = {};
+  saveProgress();
+  buildDeck(); renderCard();
+}
+
+function showCompletion() {
+  const know = Object.values(status).filter(v => v === 'know').length;
+  const unknow = Object.values(status).filter(v => v === 'unknow').length;
+  document.getElementById('cKnow').textContent   = know;
+  document.getElementById('cUnknow').textContent = unknow;
+  document.getElementById('cKnowLabel').textContent   = '认识';
+  document.getElementById('cUnknowLabel').textContent = '不认识';
+  document.getElementById('completionMsg').textContent = '你已经完成了本轮全部卡片的学习！';
+  document.getElementById('reviewBtn').style.display = '';
+  document.getElementById('completion').classList.add('show');
+}
+
+function closeCompletion() {
+  document.getElementById('completion').classList.remove('show');
+}
+
+function reviewUnknow() {
+  closeCompletion();
+  if (mode === 'quiz') {
+    // Re-quiz with only wrong cards
+    const wrongIds = new Set(Object.keys(status).filter(id => status[id] === 'unknow').map(Number));
+    qDeck = ALL_CARDS.filter(c => wrongIds.has(c.id));
+    if (qDeck.length === 0) { alert('没有答错的题目！'); return; }
+    qIdx = 0; qAnswered = false;
+    qCorrectCount = 0; qWrongCount = 0; qSeenCount = 0;
+    renderQuiz();
+  } else {
+    setMode('unknow');
+  }
+}
+
+document.addEventListener('keydown', e => {
+  if (mode === 'quiz') {
+    if (e.key === ']') {
+      e.preventDefault();
+      const nextBtn = document.getElementById('qNextBtn');
+      if (nextBtn && nextBtn.style.display !== 'none') { qNext(); }
+      else { qSkip(); }
+    }
+    if (e.key === '3') { e.preventDefault(); speakQuizAnswer(); }
+    return;
+  }
+  if (e.key === ' ' || e.key === 'ArrowUp' || e.key === 'ArrowDown') { e.preventDefault(); flipCard(); }
+  if (e.key === 'ArrowRight') nextCard();
+  if (e.key === 'ArrowLeft')  prevCard();
+  if (e.key === '1') markCard('know');
+  if (e.key === '2') markCard('unknow');
+  if (e.key === '3') { e.preventDefault(); speakCurrentEn(); }
+});
+
+// ─── Speech Functions (Web Speech API) ─────────────────
+let currentSpeech = null;
+let currentlySpeakingText = '';
+function speakText(text) {
+  // Toggle: if already speaking the same text, stop it
+  if (window.speechSynthesis.speaking && currentlySpeakingText === text) {
+    window.speechSynthesis.cancel();
+    currentlySpeakingText = '';
+    document.querySelectorAll('.speak-btn').forEach(btn => btn.classList.remove('speaking'));
+    return;
+  }
+  if (!('speechSynthesis' in window)) {
+    alert('你的浏览器不支持语音合成，请使用 Chrome/Edge 浏览器。');
+    return;
+  }
+  window.speechSynthesis.cancel();
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.lang = 'en-US';
+  utter.rate = 0.85;   // slightly slower for learning
+  utter.pitch = 1.0;
+  utter.volume = 1.0;
+  utter.onend = () => {
+    currentlySpeakingText = '';
+    document.querySelectorAll('.speak-btn').forEach(btn => btn.classList.remove('speaking'));
+  };
+  // Try to pick a good English voice
+  const voices = window.speechSynthesis.getVoices();
+  const enVoice = voices.find(v => v.lang.startsWith('en') && v.name.includes('Female'))
+            || voices.find(v => v.lang.startsWith('en'));
+  if (enVoice) utter.voice = enVoice;
+  currentlySpeakingText = text;
+  currentSpeech = utter;
+  window.speechSynthesis.speak(utter);
+  // Visual feedback: pulse the speaker button
+  document.querySelectorAll('.speak-btn').forEach(btn => {
+    btn.classList.add('speaking');
+  });
+}
+// Pre-load voices (some browsers need this)
+if ('speechSynthesis' in window) {
+  window.speechSynthesis.getVoices();
+  window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+}
+function speakCurrentEn() {
+  const c = deck[idx];
+  if (c) speakText(c.en);
+}
+function speakQuizAnswer() {
+  const c = qDeck[qIdx];
+  if (c) speakText(c.en);
+}
+// ────────────────────────────────────────────────────────
+
+// ─── Quiz Functions ───────────────────────────────────────
+function normalizEn(s) {
+  // Lowercase, trim, collapse spaces, remove trailing punctuation for lenient compare
+  return s.toLowerCase().trim().replace(/\s+/g, ' ').replace(/[.,!?'"]+$/, '');
+}
+
+function initQuiz() {
+  qDeck = [...ALL_CARDS];
+  // shuffle quiz deck always for variety
+  for (let i = qDeck.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [qDeck[i], qDeck[j]] = [qDeck[j], qDeck[i]];
+  }
+  qIdx = 0;
+  qAnswered = false;
+  qCorrectCount = 0;
+  qWrongCount   = 0;
+  qSeenCount    = 0;
+  renderQuiz();
+}
+
+function renderQuiz() {
+  if (qDeck.length === 0) return;
+  const c = qDeck[qIdx];
+  const part = getPartOf(c.id);
+  const partNames = ['','简单','中等','困难'];
+  const partColors = ['','part-1','part-2','part-3'];
+
+  document.getElementById('qZh').textContent = c.zh;
+  document.getElementById('qCardNum').textContent = '#' + c.id;
+  document.getElementById('qAnswer').textContent = c.en;
+
+  const badge = document.getElementById('qPartBadge');
+  badge.textContent = 'Part ' + part + ' · ' + partNames[part];
+  badge.className = 'part-badge ' + partColors[part];
+
+  // Reset UI
+  const inp = document.getElementById('qInput');
+  inp.value = '';
+  inp.className = 'quiz-input';
+  inp.disabled = false;
+  inp.focus();
+
+  document.getElementById('qFeedback').textContent = '';
+  document.getElementById('qFeedback').className = 'quiz-feedback';
+  document.getElementById('qReveal').classList.remove('show');
+  document.getElementById('qNextBtn').style.display = 'none';
+  document.getElementById('qSkipBtn').style.display = '';
+  document.getElementById('qPrevBtn').disabled = qIdx === 0;
+
+  qAnswered = false;
+  updateQuizStats();
+}
+
+function submitQuiz() {
+  if (qAnswered) { qNext(); return; }
+  const inp = document.getElementById('qInput');
+  const userAns = inp.value;
+  if (!userAns.trim()) { inp.focus(); return; }
+
+  const c = qDeck[qIdx];
+  const correct = normalizEn(userAns) === normalizEn(c.en);
+  qAnswered = true;
+  qSeenCount++;
+
+  inp.disabled = true;
+  inp.className = 'quiz-input ' + (correct ? 'correct' : 'wrong');
+
+  const fb = document.getElementById('qFeedback');
+  if (correct) {
+    fb.textContent = '✓ 完全正确！';
+    fb.className = 'quiz-feedback ok';
+    qCorrectCount++;
+    status[c.id] = 'know';
+    saveProgress();
+  } else {
+    fb.textContent = '✗ 答错了，看看正确答案：';
+    fb.className = 'quiz-feedback err';
+    qWrongCount++;
+    status[c.id] = 'unknow';
+    saveProgress();
+    document.getElementById('qReveal').classList.add('show');
+  }
+
+  document.getElementById('qSkipBtn').style.display = 'none';
+  document.getElementById('qNextBtn').style.display = '';
+  updateQuizStats();
+}
+
+function qSkip() {
+  if (qAnswered) return;
+  const c = qDeck[qIdx];
+  document.getElementById('qInput').disabled = true;
+  document.getElementById('qFeedback').textContent = '已跳过';
+  document.getElementById('qFeedback').className = 'quiz-feedback';
+  document.getElementById('qReveal').classList.add('show');
+  document.getElementById('qSkipBtn').style.display = 'none';
+  document.getElementById('qNextBtn').style.display = '';
+  qAnswered = true;
+  qSeenCount++;
+  updateQuizStats();
+}
+
+function qNext() {
+  if (qIdx < qDeck.length - 1) {
+    qIdx++;
+    renderQuiz();
+  } else {
+    showQuizCompletion();
+  }
+}
+
+function qPrev() {
+  if (qIdx > 0) { qIdx--; renderQuiz(); }
+}
+
+function updateQuizStats() {
+  document.getElementById('qSeen').textContent    = qSeenCount;
+  document.getElementById('qCorrect').textContent = qCorrectCount;
+  document.getElementById('qWrong').textContent   = qWrongCount;
+  // Also update progress bar
+  const pct = qDeck.length > 0 ? Math.round((qIdx + 1) / qDeck.length * 100) : 0;
+  document.getElementById('progressText').textContent = '第 ' + (qIdx+1) + ' / ' + qDeck.length + ' 题';
+  document.getElementById('progressPct').textContent  = pct + '%';
+  document.getElementById('progressFill').style.width = pct + '%';
+}
+
+function showQuizCompletion() {
+  document.getElementById('cKnow').textContent   = qCorrectCount;
+  document.getElementById('cUnknow').textContent = qWrongCount;
+  document.getElementById('cKnowLabel').textContent   = '答对';
+  document.getElementById('cUnknowLabel').textContent = '答错';
+  const acc = qSeenCount > 0 ? Math.round(qCorrectCount / qSeenCount * 100) : 0;
+  document.getElementById('completionMsg').textContent =
+    '听写测试完成！正确率 ' + acc + '%';
+  document.getElementById('reviewBtn').style.display = '';
+  document.getElementById('completion').classList.add('show');
+}
+// ──────────────────────────────────────────────────────────
+
+buildDeck();
+renderCard();
+// Set shuffle button to active state on load
+(function(){
+  const btn = document.getElementById('shuffleBtn');
+  if (btn && shuffle) btn.classList.add('active');
+})();
+
+// ── PWA: Register service worker ─────────────
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./service-worker.js').then(reg => {
+      console.log('SW registered');
+    }).catch(err => console.log('SW failed:', err));
+  });
+}
+
+// ── PWA: "Add to Home Screen" prompt ────────
+let deferredPrompt = null;
+const installBtn = document.createElement('button');
+installBtn.textContent = '📲 安装到桌面';
+installBtn.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);padding:10px 24px;border-radius:24px;border:none;z-index:999;background:linear-gradient(135deg,#a855f7,#7c3aed);color:#fff;font-size:0.85rem;font-weight:600;cursor:pointer;box-shadow:0 8px 24px rgba(0,0,0,0.4);display:none;';
+installBtn.onclick = () => {
+  installBtn.style.display = 'none';
+  if (deferredPrompt) { deferredPrompt.prompt(); deferredPrompt.userChoice.then(() => { deferredPrompt = null; }); }
+};
+document.body.appendChild(installBtn);
+window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredPrompt = e; installBtn.style.display = 'block'; });
+window.addEventListener('appinstalled', () => { installBtn.style.display = 'none'; deferredPrompt = null; console.log('PWA installed!'); });
+</script>
+</body>
+</html>
