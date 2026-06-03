@@ -1,0 +1,22 @@
+{
+  "name": "日常英语300句 - 抽认卡",
+  "short_name": "英语300",
+  "description": "日常英语300句抽认卡，支持听写测试和语音朗读",
+  "start_url": "./日常英语300句_抽认卡.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#1a1a2e",
+  "theme_color": "#7c3aed",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
